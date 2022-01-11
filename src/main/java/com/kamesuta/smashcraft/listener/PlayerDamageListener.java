@@ -48,7 +48,7 @@ public class PlayerDamageListener implements ListenerAction<EntityDamageEvent> {
 
 class SetVelocityTask extends BukkitRunnable {
     private int count = 0;
-    private final int numberOfTimes = ((int) Math.ceil(Config.knockbackCoefficient / 4));
+    private final int numberOfTimes;
     private final Player target;
     private final Vector vector;
     // 吹っ飛び率
@@ -57,6 +57,7 @@ class SetVelocityTask extends BukkitRunnable {
     SetVelocityTask(Player target, Vector direction, float knockbackCoefficient) {
         this.target = target;
         this.knockbackCoefficient = knockbackCoefficient;
+        this.numberOfTimes = ((int) Math.ceil(knockbackCoefficient / 4));
 
         if (knockbackCoefficient > 4) {
             direction.multiply(4);
