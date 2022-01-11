@@ -1,0 +1,5 @@
+name: SmashCraft
+version: '${project.version}'
+main: com.kamesuta.smashcraft.SmashCraft
+api-version: 1.16
+authors: [ Kamesuta ]
