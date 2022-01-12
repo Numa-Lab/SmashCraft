@@ -3,6 +3,7 @@ package com.kamesuta.smashcraft.listener;
 import com.kamesuta.smashcraft.Config;
 import com.kamesuta.smashcraft.SmashCraft;
 import dev.kotx.flylib.ListenerAction;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -15,6 +16,19 @@ import org.bukkit.util.Vector;
 
 public class PlayerDamageListener implements ListenerAction<EntityDamageEvent> {
     public PlayerDamageListener() {
+        // 重力加速度
+/*
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Player e : Bukkit.getOnlinePlayers()) {
+                    if (!e.isOnGround() && !e.isFlying()) {
+                        e.setVelocity(e.getVelocity().clone().add(new Vector(0, -0.02, 0)));
+                    }
+                }
+            }
+        }.runTaskTimer(SmashCraft.instance, 0, 1);
+*/
     }
 
     @Override
@@ -58,11 +72,13 @@ public class PlayerDamageListener implements ListenerAction<EntityDamageEvent> {
             Score score = SmashCraft.instance.objective.getScore(e.getEntity().getName());
             Score scorePercent = SmashCraft.instance.objectivePercent.getScore(e.getEntity().getName());
             // ダメージ量を吹っ飛び率に加算
-            score.setScore(score.getScore() + (int) damage);
+            score.setScore(Math.min(score.getScore() + (int) damage, 999));
             scorePercent.setScore(score.getScore());
 
             // 強さ
-            double knockbackCoefficient = score.getScore() / 10.0;
+            double knockbackCoefficient = Math.min(999, Math.max(0, score.getScore()));
+            knockbackCoefficient = 0.000000002 * Math.pow(knockbackCoefficient, 4) + knockbackCoefficient;
+            knockbackCoefficient *= 0.005 * (0.5 * damage + 1.5);
 
             // ノックバックの方向
             Vector knockback = knockbackDirection(damager, e.getEntity(), knockbackCoefficient);
@@ -81,10 +97,18 @@ public class PlayerDamageListener implements ListenerAction<EntityDamageEvent> {
         double x = Math.sin(damager.getLocation().getYaw() * 0.017453292F);
         double z = -Math.cos(damager.getLocation().getYaw() * 0.017453292F);
 
+        // -1 ～ 1
+        double y = -Math.sin(damager.getLocation().getPitch() * 0.017453292F);
+
+        // 0 ～ 2
+        y += 1;
+        // 0 ～ 1
+        y /= 2;
+
         Vector vec3d = entity.getVelocity();
         Vector vec3d2 = (new Vector(x, 0.0D, z)).normalize().multiply(force);
         return new Vector(vec3d.getX() / 2.0D - vec3d2.getX(),
-                entity.isOnGround() ? Math.min(0.4D, vec3d.getY() / 2.0D + force) : vec3d.getY(),
+                (force * 0.5 + Math.random() * force * 0.5 * y),
                 vec3d.getZ() / 2.0D - vec3d2.getZ());
     }
 }
