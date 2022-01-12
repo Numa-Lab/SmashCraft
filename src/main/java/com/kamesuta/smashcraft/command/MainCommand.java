@@ -6,6 +6,6 @@ public class MainCommand extends Command {
     public MainCommand(String name) {
         super(name);
 
-        children(new StartCommand(), new StopCommand(), new ConfigCommand());
+        children(new StartCommand(), new StopCommand(), new ResetCommand(), new ConfigCommand());
     }
 }

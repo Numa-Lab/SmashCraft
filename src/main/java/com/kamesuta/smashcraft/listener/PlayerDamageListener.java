@@ -3,8 +3,6 @@ package com.kamesuta.smashcraft.listener;
 import com.kamesuta.smashcraft.Config;
 import com.kamesuta.smashcraft.SmashCraft;
 import dev.kotx.flylib.ListenerAction;
-import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -12,29 +10,11 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
-import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
 
 public class PlayerDamageListener implements ListenerAction<EntityDamageEvent> {
-    private final Scoreboard sb;
-    private Objective objective;
-    private Objective objectivePercent;
-
     public PlayerDamageListener() {
-        // 吹っ飛び率のスコアボードを追加
-        this.sb = Bukkit.getScoreboardManager().getMainScoreboard();
-
-        // 吹っ飛び率計算用
-        objective = this.sb.getObjective("futtobi");
-        if (objective == null)
-            objective = this.sb.registerNewObjective("futtobi", "dummy", Component.text("吹っ飛び率"));
-
-        // 吹っ飛び率表示用
-        objectivePercent = this.sb.getObjective("futtobi_per");
-        if (objectivePercent == null)
-            objectivePercent = this.sb.registerNewObjective("futtobi_per", "dummy", Component.text("%"));
     }
 
     @Override
@@ -75,12 +55,14 @@ public class PlayerDamageListener implements ListenerAction<EntityDamageEvent> {
             }
 
             // 吹っ飛び率
-            Score score = objective.getScore(e.getEntity().getName());
+            Score score = SmashCraft.instance.objective.getScore(e.getEntity().getName());
+            Score scorePercent = SmashCraft.instance.objectivePercent.getScore(e.getEntity().getName());
             // ダメージ量を吹っ飛び率に加算
             score.setScore(score.getScore() + (int) damage);
+            scorePercent.setScore(score.getScore());
 
             // 強さ
-            double knockbackCoefficient = score.getScore();
+            double knockbackCoefficient = score.getScore() / 10.0;
 
             // ノックバックの方向
             Vector knockback = knockbackDirection(damager, e.getEntity(), knockbackCoefficient);
