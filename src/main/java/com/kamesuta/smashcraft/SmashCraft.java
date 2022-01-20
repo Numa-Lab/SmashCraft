@@ -1,11 +1,15 @@
 package com.kamesuta.smashcraft;
 
 import com.kamesuta.smashcraft.command.MainCommand;
+import com.kamesuta.smashcraft.listener.EatListener;
 import com.kamesuta.smashcraft.listener.PlayerDamageListener;
+import com.kamesuta.smashcraft.listener.PlayerUseItemListener;
 import dev.kotx.flylib.FlyLib;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -27,6 +31,8 @@ public final class SmashCraft extends JavaPlugin {
             builder.command(new MainCommand("smashcraft"));
 
             builder.listen(EntityDamageEvent.class, new PlayerDamageListener());
+            builder.listen(PlayerInteractEvent.class, new PlayerUseItemListener());
+            //builder.listen(PlayerItemConsumeEvent.class, new EatListener());
         });
     }
 

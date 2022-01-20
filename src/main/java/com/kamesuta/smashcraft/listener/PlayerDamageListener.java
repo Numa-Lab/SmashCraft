@@ -4,15 +4,18 @@ import com.kamesuta.smashcraft.Config;
 import com.kamesuta.smashcraft.SmashCraft;
 import dev.kotx.flylib.ListenerAction;
 import org.bukkit.Bukkit;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 public class PlayerDamageListener implements ListenerAction<EntityDamageEvent> {
     public PlayerDamageListener() {
@@ -42,6 +45,7 @@ public class PlayerDamageListener implements ListenerAction<EntityDamageEvent> {
         if (!(e.getEntity() instanceof Player)) {
             return;
         }
+        Player player = (Player) e.getEntity();
 
         // 奈落 または /kill 以外ならダメージ0
         double damage = e.getDamage();
@@ -67,26 +71,33 @@ public class PlayerDamageListener implements ListenerAction<EntityDamageEvent> {
             if (!(originalDamager instanceof Player)) {
                 return;
             }
+            Player originalPlayer = (Player) originalDamager;
 
             // 吹っ飛び率
-            Score score = SmashCraft.instance.objective.getScore(e.getEntity().getName());
-            Score scorePercent = SmashCraft.instance.objectivePercent.getScore(e.getEntity().getName());
+            Score score = SmashCraft.instance.objective.getScore(player.getName());
+            Score scorePercent = SmashCraft.instance.objectivePercent.getScore(player.getName());
             // ダメージ量を吹っ飛び率に加算
             score.setScore(Math.min(score.getScore() + (int) damage, 999));
             scorePercent.setScore(score.getScore());
+            // 経験値レベルにセット
+            player.setLevel(score.getScore());
+
+            // アイテム
+            ItemStack item = originalPlayer.getInventory().getItemInMainHand();
+            int knockbackLevel = item.getEnchantmentLevel(Enchantment.KNOCKBACK);
 
             // 強さ
             double knockbackCoefficient = Math.min(999, Math.max(0, score.getScore()));
             knockbackCoefficient = 0.000000002 * Math.pow(knockbackCoefficient, 4) + knockbackCoefficient;
-            knockbackCoefficient *= 0.005 * (0.5 * damage + 1.5);
+            knockbackCoefficient *= 0.005 * (0.5 * damage + 1.5 + 2 * (knockbackLevel + 1));
 
             // ノックバックの方向
-            Vector knockback = knockbackDirection(damager, e.getEntity(), knockbackCoefficient);
+            Vector knockback = knockbackDirection(damager, player, knockbackCoefficient);
             Vector direction = knockback.clone().normalize();
             double force = knockback.length();
 
             // 吹っ飛ぶ
-            new SetVelocityTask((Player) e.getEntity(), direction, force)
+            new SetVelocityTask(player, direction, force)
                     .runTaskTimerAsynchronously(SmashCraft.instance, 0, 4);
         }
     }
