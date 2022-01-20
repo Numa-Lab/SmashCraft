@@ -19,6 +19,9 @@ public class EatListener implements ListenerAction<PlayerItemConsumeEvent> {
         // ダメージ量を吹っ飛び率に加算
         score.setScore(Math.max(0, score.getScore() - 10));
         scorePercent.setScore(score.getScore());
+        // 経験値レベルにセット
+        e.getPlayer().setLevel(score.getScore());
+        e.getPlayer().setExp(score.getScore() / 300.0f);
 
         //e.getPlayer().setFoodLevel(12);
     }

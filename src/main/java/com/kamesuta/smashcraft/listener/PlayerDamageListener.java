@@ -15,23 +15,25 @@ import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
 
 public class PlayerDamageListener implements ListenerAction<EntityDamageEvent> {
     public PlayerDamageListener() {
         // 重力加速度
-/*
         new BukkitRunnable() {
             @Override
             public void run() {
-                for (Player e : Bukkit.getOnlinePlayers()) {
-                    if (!e.isOnGround() && !e.isFlying()) {
-                        e.setVelocity(e.getVelocity().clone().add(new Vector(0, -0.02, 0)));
-                    }
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    // 吹っ飛び率
+                    Score score = SmashCraft.instance.objective.getScore(player.getName());
+                    Score scorePercent = SmashCraft.instance.objectivePercent.getScore(player.getName());
+                    // %にコピー
+                    scorePercent.setScore(score.getScore());
+                    // 経験値レベルにセット
+                    player.setLevel(score.getScore());
+                    player.setExp(Math.max(0, Math.min(1, score.getScore() / 300.0f)));
                 }
             }
-        }.runTaskTimer(SmashCraft.instance, 0, 1);
-*/
+        }.runTaskTimer(SmashCraft.instance, 0, 10);
     }
 
     @Override
@@ -75,21 +77,19 @@ public class PlayerDamageListener implements ListenerAction<EntityDamageEvent> {
 
             // 吹っ飛び率
             Score score = SmashCraft.instance.objective.getScore(player.getName());
-            Score scorePercent = SmashCraft.instance.objectivePercent.getScore(player.getName());
             // ダメージ量を吹っ飛び率に加算
             score.setScore(Math.min(score.getScore() + (int) damage, 999));
-            scorePercent.setScore(score.getScore());
-            // 経験値レベルにセット
-            player.setLevel(score.getScore());
 
             // アイテム
             ItemStack item = originalPlayer.getInventory().getItemInMainHand();
             int knockbackLevel = item.getEnchantmentLevel(Enchantment.KNOCKBACK);
+            knockbackLevel = knockbackLevel > 40000 ? knockbackLevel - 65536 : knockbackLevel;
+            //Bukkit.broadcast(Component.text(knockbackLevel));
 
             // 強さ
             double knockbackCoefficient = Math.min(999, Math.max(0, score.getScore()));
             knockbackCoefficient = 0.000000002 * Math.pow(knockbackCoefficient, 4) + knockbackCoefficient;
-            knockbackCoefficient *= 0.005 * (0.5 * damage + 1.5 + 2 * (knockbackLevel + 1));
+            knockbackCoefficient *= 0.005 * (0.5 * damage + 1.5) * (0.1 * knockbackLevel + 1);
 
             // ノックバックの方向
             Vector knockback = knockbackDirection(damager, player, knockbackCoefficient);
