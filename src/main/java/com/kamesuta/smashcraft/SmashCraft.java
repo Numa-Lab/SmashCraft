@@ -31,8 +31,8 @@ public final class SmashCraft extends JavaPlugin {
             builder.command(new MainCommand("smashcraft"));
 
             builder.listen(EntityDamageEvent.class, new PlayerDamageListener());
-            builder.listen(PlayerInteractEvent.class, new PlayerUseItemListener());
-            //builder.listen(PlayerItemConsumeEvent.class, new EatListener());
+            //builder.listen(PlayerInteractEvent.class, new PlayerUseItemListener());
+            builder.listen(PlayerItemConsumeEvent.class, new EatListener());
         });
     }
 

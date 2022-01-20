@@ -2,14 +2,16 @@ package com.kamesuta.smashcraft.listener;
 
 import com.kamesuta.smashcraft.SmashCraft;
 import dev.kotx.flylib.ListenerAction;
+import org.bukkit.Material;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.scoreboard.Score;
 
 public class EatListener implements ListenerAction<PlayerItemConsumeEvent> {
     @Override
     public void execute(PlayerItemConsumeEvent e) {
-//        // 飯かどうかを判定
-//        if (e.getItem() instanceof Food)
+        // 飯かどうかを判定
+        if (e.getItem().getType() != Material.APPLE)
+            return;
 
         // 吹っ飛び率
         Score score = SmashCraft.instance.objective.getScore(e.getPlayer().getName());
@@ -18,6 +20,6 @@ public class EatListener implements ListenerAction<PlayerItemConsumeEvent> {
         score.setScore(Math.max(0, score.getScore() - 10));
         scorePercent.setScore(score.getScore());
 
-        e.getPlayer().setFoodLevel(12);
+        //e.getPlayer().setFoodLevel(12);
     }
 }
