@@ -21,6 +21,8 @@ public final class SmashCraft extends JavaPlugin {
     public Objective objective;
     public Objective objectivePercent;
 
+    public int velocityGroup = 0;
+
     @Override
     public void onEnable() {
         instance = this;

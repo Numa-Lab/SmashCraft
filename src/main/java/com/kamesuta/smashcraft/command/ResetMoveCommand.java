@@ -3,7 +3,6 @@ package com.kamesuta.smashcraft.command;
 import com.kamesuta.smashcraft.SmashCraft;
 import dev.kotx.flylib.command.Command;
 import dev.kotx.flylib.command.CommandContext;
-import org.bukkit.Bukkit;
 
 public class ResetMoveCommand extends Command {
     public ResetMoveCommand() {
@@ -12,7 +11,8 @@ public class ResetMoveCommand extends Command {
 
     @Override
     public void execute(CommandContext ctx) {
-        Bukkit.getServer().getScheduler().cancelTasks(SmashCraft.instance);
+        //Bukkit.getServer().getScheduler().cancelTasks(SmashCraft.instance);
+        SmashCraft.instance.velocityGroup++;
         ctx.success("ケツ量をリセットしました。");
     }
 }

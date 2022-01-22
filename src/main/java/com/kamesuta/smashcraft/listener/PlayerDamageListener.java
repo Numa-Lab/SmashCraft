@@ -128,10 +128,12 @@ public class PlayerDamageListener implements ListenerAction<EntityDamageEvent> {
         private final int numberOfTimes;
         private final Player target;
         private final Vector vector;
+        private final int velocityGroup;
 
         SetVelocityTask(Player target, Vector direction, double knockbackCoefficient) {
             this.target = target;
             this.numberOfTimes = ((int) Math.ceil(knockbackCoefficient / 4));
+            this.velocityGroup = SmashCraft.instance.velocityGroup;
 
             if (knockbackCoefficient > 4) {
                 direction.multiply(4);
@@ -143,7 +145,7 @@ public class PlayerDamageListener implements ListenerAction<EntityDamageEvent> {
 
         @Override
         public void run() {
-            if (target.isDead()) {
+            if (velocityGroup != SmashCraft.instance.velocityGroup || target.isDead()) {
                 this.cancel();
                 return;
             }
