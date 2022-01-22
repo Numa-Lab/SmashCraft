@@ -122,38 +122,38 @@ public class PlayerDamageListener implements ListenerAction<EntityDamageEvent> {
                 (force * 0.5 + Math.random() * force * 0.5 * y),
                 vec3d.getZ() / 2.0D - vec3d2.getZ());
     }
-}
 
-class SetVelocityTask extends BukkitRunnable {
-    private int count = 0;
-    private final int numberOfTimes;
-    private final Player target;
-    private final Vector vector;
+    private static class SetVelocityTask extends BukkitRunnable {
+        private int count = 0;
+        private final int numberOfTimes;
+        private final Player target;
+        private final Vector vector;
 
-    SetVelocityTask(Player target, Vector direction, double knockbackCoefficient) {
-        this.target = target;
-        this.numberOfTimes = ((int) Math.ceil(knockbackCoefficient / 4));
+        SetVelocityTask(Player target, Vector direction, double knockbackCoefficient) {
+            this.target = target;
+            this.numberOfTimes = ((int) Math.ceil(knockbackCoefficient / 4));
 
-        if (knockbackCoefficient > 4) {
-            direction.multiply(4);
-        } else {
-            direction.multiply(knockbackCoefficient);
-        }
-        this.vector = direction;
-    }
-
-    @Override
-    public void run() {
-        if (target.isDead()) {
-            this.cancel();
-            return;
+            if (knockbackCoefficient > 4) {
+                direction.multiply(4);
+            } else {
+                direction.multiply(knockbackCoefficient);
+            }
+            this.vector = direction;
         }
 
-        target.setVelocity(vector);
+        @Override
+        public void run() {
+            if (target.isDead()) {
+                this.cancel();
+                return;
+            }
 
-        count++;
-        if (count >= numberOfTimes) {
-            this.cancel();
+            target.setVelocity(vector);
+
+            count++;
+            if (count >= numberOfTimes) {
+                this.cancel();
+            }
         }
     }
 }
